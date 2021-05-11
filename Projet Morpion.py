@@ -37,8 +37,9 @@ def Action(s):
 	return l
 
 def Result(s,a):
-	s[a[0]][a[1]]=a[2]
-	return s
+	sbis = np.copy(s)
+	sbis[a[0]][a[1]]=a[2]
+	return sbis
 
 def Terminal_Test(s):
 	flag = True
