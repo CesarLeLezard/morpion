@@ -176,14 +176,16 @@ def Utility(s,symbole ="X",symbloleAdversaire="O"):
 		for i in Action(s):
 			if Utility(Result(s, i+[symbole]),symbole)==1:
 				res = 0.99
+				break
 			if Utility(Result(s,i+[symbloleAdversaire]),symbloleAdversaire)==-1:
 				res = -0.99
+				break
 		if res == 0:
 			nbv = 0
 
 			for i in range(12):
 				for j in range(12):
-					print(i,j)
+# 					print(i,j)
 					if s[i][j]!=None:
 						nbv += Voisins(s,i,j)
 			res = nbv/((144-len(Action(s)))*100)
@@ -242,7 +244,7 @@ def Jeu(mp,symboleOrdi="X",symboleAdversaire="O",ordinateurcommence =True):
 #%% Test de la fonction Terminal_test
 
 mp = Morpion()
-"""
+
 mp.tab = Result(mp.tab,[1,2,'X'])
 mp.tab = np.full((12,12),'X')
 # mp.tab = Result(mp.tab,[2,3,None])
@@ -331,7 +333,7 @@ print(mp)
 print(Terminal_Test(mp.tab))
 print(Utility(mp.tab))
 print(MinMax(mp.tab))
-"""
+
 #%% Finale
 """
 mp.tab = np.array([[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None]])
@@ -342,7 +344,7 @@ mp.tab = np.array([["X","X","X",None,None,None,None,None,None,None,None,None],["
 print(mp)
 print(Terminal_Test(mp.tab))
 print(Utility(mp.tab))
-# print(MinMax(mp.tab))
+print(MinMax(mp.tab))
 #%% Test basique 2
 """
 mp.tab = np.array([["O","O","O",None,None,None,None,None,None,None,None,None],["X","X","X",None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None]])
