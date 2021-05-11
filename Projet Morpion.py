@@ -85,6 +85,35 @@ def Terminal_Test(s):
 							flag = flag or flagTemp
 	return flag
 
+def Voisins(s,x,y):
+	res = 0
+	val = s[x][y]
+	if x+1<12:
+		if s[x+1][y]==val:
+			res+=1
+		s[x+1][y] = 'null'
+	if y+1<12:
+		if s[x][y+1]==val:
+			res +=1
+		s[x][y+1] = 'null'
+	if x+1<12 and y+1<12:
+		if s[x+1][y+1]==val:
+			res +=1
+		s[x+1][y+1]= 'null'
+	if x-1>=0:
+		if s[x-1][y]==val:
+			res+=1
+		s[x-1][y]='null'
+	if y-1>=0:
+		if s[x][y-1]==val:
+			res +=1
+		s[x][y-1]='null'
+	if x-1>=0 and y-1>=0:
+		if s[x-1][y-1]==val:
+			res +=1
+		s[x-1][y-1]='null'
+	return res
+
 def Utility(s,symbole ="X",symbloleAdversaire="O"):
 	res = 0
 	flag = False
@@ -149,6 +178,8 @@ def Utility(s,symbole ="X",symbloleAdversaire="O"):
 				res = 0.99
 			if Utility(Result(s,i+[symbloleAdversaire]),symbloleAdversaire)==-1:
 				res = -0.99
+# 		if res == 0:
+
 	return res
 
 def MinMax(s,listedecoup = list([]),symbole="X",symboleAdversaire="O"):
