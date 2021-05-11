@@ -84,7 +84,7 @@ def Terminal_Test(s):
 							flag = flag or flagTemp
 	return flag
 
-def Utility(s,symbole ="X"):
+def Utility(s,symbole ="X",symbloleAdversaire="O"):
 	res = 0
 	flag = False
 	for j in range(s.shape[1]):
@@ -142,13 +142,16 @@ def Utility(s,symbole ="X"):
 							else:
 								res = -1
 						flag = flag or flagTemp
+	if res == 0:
+		for i in Action(s):
+			if Utility(Result(s, i+[symbole]),symbole)==1:
+				res = 0.99
+			if Utility(Result(s,i+[symbloleAdversaire]),symbloleAdversaire)==-1:
+				res = -0.99
 	return res
 
 def MinMax(s,listedecoup = list([]),symbole="X",symboleAdversaire="O"):
 	if Terminal_Test(s):
-		if len(listedecoup)!=0:
-			return 3*Utility(s,symbole)/len(listedecoup),listedecoup
-		else:
 			return Utility(s,symbole),listedecoup
 	elif (np.count_nonzero(s == symbole))<=(np.count_nonzero(s == symboleAdversaire)):
 		sbis = np.copy(s)
