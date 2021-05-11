@@ -114,9 +114,11 @@ def Voisins(s,x,y):
 			res +=1
 	return res
 
-def Utility(s,symbole ="X",symbloleAdversaire="O"):
+def Utility(s,symbole ="X",symboleAdversaire="O"):
 	res = 0
 	flag = False
+	if len(Action(s))==144:
+		flag = True
 	for j in range(s.shape[1]):
 			#colonnes
 			for i in range(s.shape[0]-3):
@@ -172,14 +174,13 @@ def Utility(s,symbole ="X",symbloleAdversaire="O"):
 							else:
 								res = -1
 						flag = flag or flagTemp
-	if res == 0:
+	if res == 0 and not flag:
 		for i in Action(s):
-			if Utility(Result(s, i+[symbole]),symbole)==1:
-				res = 0.99
-				break
-			if Utility(Result(s,i+[symbloleAdversaire]),symbloleAdversaire)==-1:
-				res = -0.99
-				break
+			if Terminal_Test(Result(s, i+[symbole])):
+				if Utility(Result(s, i+[symbole]),symbole,symboleAdversaire)==1:
+					res = 0.99
+				elif Utility(Result(s, i+[symboleAdversaire]),symbole,symboleAdversaire)==-1:
+					res = -0.99
 		if res == 0:
 			nbv = 0
 
