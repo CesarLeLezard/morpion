@@ -91,27 +91,27 @@ def Voisins(s,x,y):
 	if x+1<12:
 		if s[x+1][y]==val:
 			res+=1
-		s[x+1][y] = 'null'
 	if y+1<12:
 		if s[x][y+1]==val:
 			res +=1
-		s[x][y+1] = 'null'
 	if x+1<12 and y+1<12:
 		if s[x+1][y+1]==val:
 			res +=1
-		s[x+1][y+1]= 'null'
 	if x-1>=0:
 		if s[x-1][y]==val:
 			res+=1
-		s[x-1][y]='null'
 	if y-1>=0:
 		if s[x][y-1]==val:
 			res +=1
-		s[x][y-1]='null'
 	if x-1>=0 and y-1>=0:
 		if s[x-1][y-1]==val:
 			res +=1
-		s[x-1][y-1]='null'
+	if x-1>=0 and y+1<12:
+		if s[x-1][y+1]==val:
+			res +=1
+	if y-1>=0 and x+1<12:
+		if s[x+1][y-1]==val:
+			res +=1
 	return res
 
 def Utility(s,symbole ="X",symbloleAdversaire="O"):
@@ -178,8 +178,15 @@ def Utility(s,symbole ="X",symbloleAdversaire="O"):
 				res = 0.99
 			if Utility(Result(s,i+[symbloleAdversaire]),symbloleAdversaire)==-1:
 				res = -0.99
-# 		if res == 0:
+		if res == 0:
+			nbv = 0
 
+			for i in range(12):
+				for j in range(12):
+					print(i,j)
+					if s[i][j]!=None:
+						nbv += Voisins(s,i,j)
+			res = nbv/((144-len(Action(s)))*100)
 	return res
 
 def MinMax(s,listedecoup = list([]),symbole="X",symboleAdversaire="O"):
@@ -335,7 +342,7 @@ mp.tab = np.array([["X","X","X",None,None,None,None,None,None,None,None,None],["
 print(mp)
 print(Terminal_Test(mp.tab))
 print(Utility(mp.tab))
-print(MinMax(mp.tab))
+# print(MinMax(mp.tab))
 #%% Test basique 2
 """
 mp.tab = np.array([["O","O","O",None,None,None,None,None,None,None,None,None],["X","X","X",None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None]])
