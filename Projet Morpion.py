@@ -5,7 +5,7 @@ Created on Wed May  5 10:33:29 2021
 @author: Antoine
 """
 import numpy as np
-
+import time
 
 class Morpion:
     def __init__(self, x=12, y=12, grille=None):
@@ -281,8 +281,9 @@ def jeu(mp, tour_ordinateur=True):
     print(mp)
     while not partie_terminee(mp.grille):
         if tour_ordinateur:
+            t = time.time()
             if len(cases_jouables(mp.grille))== taille*taille:
-                coup = [0,0]
+                coup = [5,5]
             else:
                 copie_grille = np.copy(mp.grille)
                 valeure=-1000
@@ -295,13 +296,15 @@ def jeu(mp, tour_ordinateur=True):
             applique_coup(mp.grille, coup+[symbole_ordinateur],True)
             print(mp)
             tour_ordinateur = not tour_ordinateur
+            print("Temps de réfléxion: ",time.time()-t)
         else:
             print("\nA toi de jouer ヽ(♡‿♡)ノ \n")
             x = int(input("Ta ligne stp (つ✧ω✧)つ :"))
             y = int(input("Ta colonne maintenant (⌒_⌒;) :"))
             if mp.grille[x, y] is None:
                 mp.grille = applique_coup(mp.grille, [x, y, symbole_joueur])
-                print('\n', mp)
+                print('\n')
+                print(mp)
                 tour_ordinateur = not tour_ordinateur
             else:
                 print("\nTu n'as pas le droit tricheur ((╬◣﹏◢)) rejoue!")
