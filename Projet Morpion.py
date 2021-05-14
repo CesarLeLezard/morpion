@@ -38,7 +38,9 @@ def cases_jouables(grille):
     return cases
 
 
-def applique_coup(grille, coup):
+def applique_coup(grille, coup,modifier = False):
+    if modifier:
+        grille[coup[0]][coup[1]] = coup[2]
     copie_grille = np.copy(grille)
     copie_grille[coup[0]][coup[1]] = coup[2]
     return copie_grille
@@ -91,7 +93,7 @@ def partie_terminee(s):
                                     stemp[ligne + i][i] is None):
                                 flag_temp = False
                             flag = flag or flag_temp
-    print(flag)
+    # print(flag)
     return flag
 
 
@@ -124,6 +126,41 @@ def voisins(grille, x, y):
             res += 1
     return res
 
+def absence_voisins(grille, x, y):
+    res = 0
+    if x + 1 < taille:
+        if grille[x + 1][y] == symbole_joueur or grille[x + 1][y]==symbole_ordinateur:
+            res += 1
+    if y + 1 < taille:
+        if grille[x][y + 1] == symbole_joueur or grille[x][y + 1]==symbole_ordinateur:
+            res += 1
+    if x + 1 < taille and y + 1 < taille:
+        if grille[x + 1][y + 1] == symbole_joueur or grille[x + 1][y + 1]==symbole_ordinateur:
+            res += 1
+    if x - 1 >= 0:
+        if grille[x - 1][y] == symbole_joueur or grille[x - 1][y]==symbole_ordinateur:
+            res += 1
+    if y - 1 >= 0:
+        if grille[x][y - 1] == symbole_joueur or grille[x][y - 1]==symbole_ordinateur:
+            res += 1
+    if x - 1 >= 0 and y - 1 >= 0:
+        if grille[x - 1][y - 1] == symbole_joueur or grille[x - 1][y - 1]==symbole_ordinateur:
+            res += 1
+    if x - 1 >= 0 and y + 1 < taille:
+        if grille[x - 1][y + 1] == symbole_joueur or grille[x - 1][y + 1]==symbole_ordinateur:
+            res += 1
+    if y - 1 >= 0 and x + 1 < taille:
+        if grille[x + 1][y - 1] == symbole_joueur or grille[x + 1][y - 1]==symbole_ordinateur:
+            res += 1
+    return res
+
+def cases_jouables_interessantes(grille):
+    tableau = cases_jouables(grille)
+    res = []
+    for coup in tableau:
+        if absence_voisins(grille, coup[0],coup[1]) >0:
+            res.append(coup)
+    return res
 
 def evaluation_grille(grille):
     res = 0
@@ -209,40 +246,33 @@ def evaluation_grille(grille):
     return res
 
 
-def minimax(grille, ordinateur, coup, alpha, beta):
-    print(Morpion(x=4, y=4, grille=grille))
-    if coup is not None:
-        grille = applique_coup(grille, coup)
-    if partie_terminee(grille):
-        return evaluation_grille(grille), coup
+def minimax(grille, ordinateur, alpha, beta,profondeur):
+    # print(Morpion(x=12, y=12, grille=grille))
+    if partie_terminee(grille) or profondeur<1:
+        # print(evaluation_grille(grille))
+        return evaluation_grille(grille)
     elif ordinateur:
         max_evaluation = - np.Inf
-        meilleur_coup = None
-        for coup in cases_jouables(grille):
+        for coup in cases_jouables_interessantes(grille):
             copie_grille = np.copy(grille)
             coup.append(symbole_ordinateur)
-            evaluation = minimax(copie_grille, False, coup, alpha, beta)
-            alpha = max(alpha, evaluation[0])
-            if evaluation[0] > max_evaluation:
-                max_evaluation = evaluation[0]
-                meilleur_coup = coup
+            evaluation = minimax(applique_coup(copie_grille, coup), False, alpha, beta,profondeur-1)
+            alpha = max(alpha, evaluation)
+            max_evaluation = max(max_evaluation,evaluation)
             if beta <= alpha:
                 break
-        return max_evaluation, meilleur_coup
+        return max_evaluation
     else:
         min_evaluation = np.Inf
-        meilleur_coup = None
-        for coup in cases_jouables(grille):
+        for coup in cases_jouables_interessantes(grille):
             copie_grille = np.copy(grille)
             coup.append(symbole_joueur)
-            evaluation = minimax(copie_grille, True, coup, alpha, beta)
-            beta = min(beta, evaluation[0])
-            if evaluation[0] < min_evaluation:
-                min_evaluation = evaluation[0]
-                meilleur_coup = coup
+            evaluation = minimax(applique_coup(copie_grille, coup), True, alpha, beta,profondeur-1)
+            min_evaluation = min(min_evaluation,evaluation)
+            beta = min(beta, evaluation)
             if beta <= alpha:
                 break
-        return min_evaluation, meilleur_coup
+        return min_evaluation
 
 
 # commence la partie
@@ -251,13 +281,20 @@ def jeu(mp, tour_ordinateur=True):
     print(mp)
     while not partie_terminee(mp.grille):
         if tour_ordinateur:
-            copie_grille = np.copy(mp.grille)
-            coup = minimax(copie_grille, True, None, - np.Inf, np.Inf)
+            if len(cases_jouables(mp.grille))== taille*taille:
+                coup = [0,0]
+            else:
+                copie_grille = np.copy(mp.grille)
+                valeure=-1000
+                for i in cases_jouables_interessantes(copie_grille):
+                    minimax_valeure = minimax(copie_grille, True, - np.Inf, np.Inf,3)
+                    if valeure <= minimax_valeure:
+                        valeure = minimax_valeure
+                        coup = i
             print("\nMon coup (⌐■_■) :", coup, "\n")
-            applique_coup(mp.grille, coup)
+            applique_coup(mp.grille, coup+[symbole_ordinateur],True)
             print(mp)
             tour_ordinateur = not tour_ordinateur
-            exit(0)
         else:
             print("\nA toi de jouer ヽ(♡‿♡)ノ \n")
             x = int(input("Ta ligne stp (つ✧ω✧)つ :"))
@@ -277,6 +314,9 @@ def jeu(mp, tour_ordinateur=True):
 if __name__ == '__main__':
     symbole_joueur = "O"
     symbole_ordinateur = "X"
-    taille = 4
+    taille = 12
     morpion = Morpion(x=taille, y=taille)
+    # morpion.grille = (np.array([['X','X','O','X',None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None,None,None,None,None]]))
+    # print(len(cases_jouables(morpion.grille)))
+    # print((cases_jouables_interessantes(morpion.grille)))
     jeu(morpion)
