@@ -8,7 +8,6 @@ import numpy as np
 import time
 from random import shuffle
 
-compteur = 0
 jeton = None
 
 
@@ -101,65 +100,6 @@ def partie_terminee(grille):
            or test_diagonale(np.rot90(grille))
 
 
-def voisins_identiques(grille, x, y):
-    res = 0
-    val = grille[x][y]
-    if x + 1 < taille:
-        if grille[x + 1][y] == val or grille[x + 1][y] is None:
-            res += 1
-    if y + 1 < taille:
-        if grille[x][y + 1] == val or grille[x][y + 1] is None:
-            res += 1
-    if x + 1 < taille and y + 1 < taille:
-        if grille[x + 1][y + 1] == val or grille[x + 1][y + 1] is None:
-            res += 1
-    if x - 1 >= 0:
-        if grille[x - 1][y] == val or grille[x - 1][y] is None:
-            res += 1
-    if y - 1 >= 0:
-        if grille[x][y - 1] == val or grille[x][y - 1] is None:
-            res += 1
-    if x - 1 >= 0 and y - 1 >= 0:
-        if grille[x - 1][y - 1] == val or grille[x - 1][y - 1] is None:
-            res += 1
-    if x - 1 >= 0 and y + 1 < taille:
-        if grille[x - 1][y + 1] == val or grille[x - 1][y + 1] is None:
-            res += 1
-    if y - 1 >= 0 and x + 1 < taille:
-        if grille[x + 1][y - 1] == val or grille[x + 1][y - 1] is None:
-            res += 1
-    return res
-
-
-def nombre_voisins(grille, x, y):
-    res = 0
-    if x + 1 < taille:
-        if grille[x + 1][y] == symbole_joueur or grille[x + 1][y] == symbole_ordinateur:
-            res += 1
-    if y + 1 < taille:
-        if grille[x][y + 1] == symbole_joueur or grille[x][y + 1] == symbole_ordinateur:
-            res += 1
-    if x + 1 < taille and y + 1 < taille:
-        if grille[x + 1][y + 1] == symbole_joueur or grille[x + 1][y + 1] == symbole_ordinateur:
-            res += 1
-    if x - 1 >= 0:
-        if grille[x - 1][y] == symbole_joueur or grille[x - 1][y] == symbole_ordinateur:
-            res += 1
-    if y - 1 >= 0:
-        if grille[x][y - 1] == symbole_joueur or grille[x][y - 1] == symbole_ordinateur:
-            res += 1
-    if x - 1 >= 0 and y - 1 >= 0:
-        if grille[x - 1][y - 1] == symbole_joueur or grille[x - 1][y - 1] == symbole_ordinateur:
-            res += 1
-    if x - 1 >= 0 and y + 1 < taille:
-        if grille[x - 1][y + 1] == symbole_joueur or grille[x - 1][y + 1] == symbole_ordinateur:
-            res += 1
-    if y - 1 >= 0 and x + 1 < taille:
-        if grille[x + 1][y - 1] == symbole_joueur or grille[x + 1][y - 1] == symbole_ordinateur:
-            res += 1
-    return res
-
-
 def a_un_voisin_joueur(grille, x, y, ordinateur):
     if ordinateur:
         symbole = symbole_ordinateur
@@ -206,7 +146,10 @@ def evaluation_grille(grille):
     if jeton is not None:
         return notation[jeton]
     nb_coup_critique = 0
-    for case in cases_jouables_interessantes(grille, ordinateur_commence):
+    cases_interessantes = cases_jouables_interessantes(grille, ordinateur_commence)
+    if not ordinateur_commence:
+        cases_interessantes += cases_jouables_interessantes(grille, True)
+    for case in cases_interessantes:
         grille2 = applique_coup(grille, case + [symbole_ordinateur])
         if test_ligne(grille2) or test_colonne(grille2) or test_diagonale(grille2) or test_diagonale(np.rot90(grille2)):
             nb_coup_critique += 1
@@ -228,20 +171,20 @@ def evaluation_grille(grille):
 
 
 def minimax(grille, ordinateur, alpha, beta, profondeur):
-    global compteur
     global jeton
     jeton = None
-    compteur += 1
-    # print(compteur)
     if partie_terminee(grille) or profondeur < 1:
         return evaluation_grille(grille)
     elif ordinateur:
         max_evaluation = - np.Inf
-        for coup in cases_jouables_interessantes(grille, ordinateur_commence):
+        cases_interessantes = cases_jouables_interessantes(grille, ordinateur_commence)
+        if not ordinateur_commence:
+            cases_interessantes += cases_jouables_interessantes(grille, True)
+        for coup in cases_interessantes:
             coup.append(symbole_ordinateur)
             evaluation = minimax(applique_coup(grille, coup), False, alpha, beta, profondeur - 1)
             max_evaluation = max(max_evaluation, evaluation)
-            if max_evaluation >= beta:
+            if max_evaluation >= beta or max_evaluation >= 1:
                 break
             alpha = max(alpha, max_evaluation)
         return max_evaluation
@@ -251,7 +194,7 @@ def minimax(grille, ordinateur, alpha, beta, profondeur):
             coup.append(symbole_joueur)
             evaluation = minimax(applique_coup(grille, coup), True, alpha, beta, profondeur - 1)
             min_evaluation = min(min_evaluation, evaluation)
-            if min_evaluation <= alpha:
+            if min_evaluation <= alpha or min_evaluation <= -1:
                 break
             beta = min(beta, min_evaluation)
         return min_evaluation
@@ -276,20 +219,31 @@ def jeu(mp, tour_ordinateur=True):
                             else:
                                 coup = [i - 1, j]
             else:
+                compteur = 0
                 alpha = - np.Inf
                 beta = np.Inf
                 valeur = - np.Inf
-                print("Nombres de cases_jouables intéressantes : ", len(cases_jouables_interessantes(mp.grille, True)))
-                for i in cases_jouables_interessantes(mp.grille, ordinateur_commence):
+                cases_interessantes = cases_jouables_interessantes(mp.grille, ordinateur_commence)
+                if not ordinateur_commence:
+                    cases_interessantes += cases_jouables_interessantes(mp.grille, True)
+                profondeur_minimax = 1
+                print(len(cases_interessantes))
+                if len(cases_interessantes) <= 9:
+                    profondeur_minimax = 3
+                for i in cases_interessantes:
                     minimax_valeur = minimax(applique_coup(mp.grille, i + [symbole_ordinateur]), False,
                                              alpha, beta, profondeur_minimax)
                     if valeur <= minimax_valeur:
                         print("minimax : ", minimax_valeur, i)
                         valeur = minimax_valeur
                         coup = i
-                    if valeur == 1 or (valeur == 0.99 and not a_un_voisin_joueur(mp.grille, coup[0], coup[1], False)):
+                    compteur += 1
+                    temps_par_coup = (time.time() - t) / compteur
+                    if temps_par_coup * (compteur + 1.5) > 10:
                         break
-            print("\nMon coup (⌐■_■) : [", str(coup[0] + 1) + ", " + str(coup[1] + 1), "]\n")
+                    if valeur == 1:
+                        break
+            print("\nMon coup (⌐■_■) : [", str(coup[1] + 1) + ", " + str(coup[0] + 1), "]\n")
             applique_coup(mp.grille, coup + [symbole_ordinateur], True)
             print(mp)
             tour_ordinateur = not tour_ordinateur
@@ -320,6 +274,5 @@ if __name__ == '__main__':
     symbole_ordinateur = "X"
     notation = {symbole_ordinateur: 1, symbole_joueur: -1}
     taille = 12
-    profondeur_minimax = 2
     morpion = Morpion(x=taille, y=taille)
     jeu(morpion, ordinateur_commence)
