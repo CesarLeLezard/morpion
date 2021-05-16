@@ -267,6 +267,14 @@ def jeu(mp, tour_ordinateur=True):
             coup = []
             if len(cases_jouables(mp.grille)) == taille * taille:
                 coup = [taille // 2, taille // 2]
+            elif len(cases_jouables(mp.grille)) == taille * taille - 1:
+                for i in range(taille):
+                    for j in range(taille):
+                        if mp.grille[i, j] is not None:
+                            if i != taille - 1:
+                                coup = [i + 1, j]
+                            else:
+                                coup = [i - 1, j]
             else:
                 alpha = - np.Inf
                 beta = np.Inf
@@ -279,7 +287,7 @@ def jeu(mp, tour_ordinateur=True):
                         print("minimax : ", minimax_valeur, i)
                         valeur = minimax_valeur
                         coup = i
-                    if valeur == 1:  # valeur == 0.99 or
+                    if valeur == 1 or (valeur == 0.99 and not a_un_voisin_joueur(mp.grille, coup[0], coup[1], False)):
                         break
             print("\nMon coup (⌐■_■) :", coup, "\n")
             applique_coup(mp.grille, coup + [symbole_ordinateur], True)
