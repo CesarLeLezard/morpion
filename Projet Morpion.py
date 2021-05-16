@@ -206,7 +206,7 @@ def evaluation_grille(grille):
     if jeton is not None:
         return notation[jeton]
     nb_coup_critique = 0
-    for case in cases_jouables_interessantes(grille, True):
+    for case in cases_jouables_interessantes(grille, ordinateur_commence):
         grille2 = applique_coup(grille, case + [symbole_ordinateur])
         if test_ligne(grille2) or test_colonne(grille2) or test_diagonale(grille2) or test_diagonale(np.rot90(grille2)):
             nb_coup_critique += 1
@@ -237,7 +237,7 @@ def minimax(grille, ordinateur, alpha, beta, profondeur):
         return evaluation_grille(grille)
     elif ordinateur:
         max_evaluation = - np.Inf
-        for coup in cases_jouables_interessantes(grille, True):
+        for coup in cases_jouables_interessantes(grille, ordinateur_commence):
             coup.append(symbole_ordinateur)
             evaluation = minimax(applique_coup(grille, coup), False, alpha, beta, profondeur - 1)
             max_evaluation = max(max_evaluation, evaluation)
@@ -280,7 +280,7 @@ def jeu(mp, tour_ordinateur=True):
                 beta = np.Inf
                 valeur = - np.Inf
                 print("Nombres de cases_jouables intéressantes : ", len(cases_jouables_interessantes(mp.grille, True)))
-                for i in cases_jouables_interessantes(mp.grille, True):
+                for i in cases_jouables_interessantes(mp.grille, ordinateur_commence):
                     minimax_valeur = minimax(applique_coup(mp.grille, i + [symbole_ordinateur]), False,
                                              alpha, beta, profondeur_minimax)
                     if valeur <= minimax_valeur:
@@ -320,6 +320,6 @@ if __name__ == '__main__':
     symbole_ordinateur = "X"
     notation = {symbole_ordinateur: 1, symbole_joueur: -1}
     taille = 12
-    profondeur_minimax = 3
+    profondeur_minimax = 2
     morpion = Morpion(x=taille, y=taille)
     jeu(morpion, ordinateur_commence)
