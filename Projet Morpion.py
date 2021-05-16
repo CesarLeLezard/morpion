@@ -20,10 +20,10 @@ class Morpion:
             self.grille = grille
 
     def __str__(self):
-        msg = "     0  1  2  3  4  5  6  7  8  9  10 11\n    ------------------------------------\n"
+        msg = "     1  2  3  4  5  6  7  8  9  10 11 12\n    ------------------------------------\n"
         for i in range(self.grille.shape[0]):
-            msg += str(i)
-            if i < 10:
+            msg += str(i + 1)
+            if (i + 1) < 10:
                 msg += " "
             msg += " |"
             for j in range(self.grille.shape[1]):
@@ -289,15 +289,15 @@ def jeu(mp, tour_ordinateur=True):
                         coup = i
                     if valeur == 1 or (valeur == 0.99 and not a_un_voisin_joueur(mp.grille, coup[0], coup[1], False)):
                         break
-            print("\nMon coup (⌐■_■) :", coup, "\n")
+            print("\nMon coup (⌐■_■) : [", str(coup[0] + 1) + ", " + str(coup[1] + 1), "]\n")
             applique_coup(mp.grille, coup + [symbole_ordinateur], True)
             print(mp)
             tour_ordinateur = not tour_ordinateur
             print("Temps de réflexion : ", time.time() - t)
         else:
             print("\nA toi de jouer ヽ(♡‿♡)ノ \n")
-            x = int(input("Ta ligne stp (つ✧ω✧)つ :"))
-            y = int(input("Ta colonne maintenant (⌒_⌒;) :"))
+            y = int(input("Ta colonne stp (⌒_⌒;) :")) - 1
+            x = int(input("Ta ligne maintenant (つ✧ω✧)つ :")) - 1
             if mp.grille[x, y] is None:
                 mp.grille = applique_coup(mp.grille, [x, y, symbole_joueur])
                 print('\n')
